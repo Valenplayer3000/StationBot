@@ -28,6 +28,8 @@ client.on("message", function (message) {
     if (command === "botinfo") {
         const timeTaken = Date.now() - message.createdTimestamp;
         message.channel.send(`StationBot by stationaryStation\nVersion: ${verNumber}\nCurrent Branch: Stable(github)\nPing: ${timeTaken}ms\nHosted with: node.js, discord.js and repl.it\nPrefixes: ${prefix}`)
+        message.channel.send('This bot is made using Discord.js and hosted using Replit');
+        message.channel.send('Made by StationaryStation. To see the work form this bot type "st!github".')
     }
     // Lists server info
     if (command === "serverinfo") {
