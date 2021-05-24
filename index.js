@@ -1,15 +1,22 @@
 const Discord = require('discord.js');
 const config = require('./config.json');
 const client = new Discord.Client();
-const prefix = 'st!';
-const verNumber = '1.1.1c';
-const dev = '567014451337887744';
+const prefix = config.prefix
 client.on('ready', () => {
-  console.log(`Logged in as ${client.user.tag}.\n Ver: ${verNumber}\n Prefix: ${prefix}`);
+  console.log(`Logged in as ${client.user.tag}.\n Ver: ${config.botVer}\n Prefix: ${prefix}`);
   console.log('Bot ready for operation.');
-  client.user.setActivity(`${prefix}help for command list. | Using Current Branch`, {
-    type: 'LISTENING'
- });
+  if (config.stable == true){
+    client.user.setActivity(`${prefix}help for command list. | Using Current Branch`, {
+        type: 'LISTENING'
+     });
+  } else if (config.stable == false) {
+    client.user.setActivity(`${prefix}help for command list. | Using Unstable Branch`, {
+        type: 'LISTENING'
+     });
+  } else {
+      console.error("An unexpected error has ocurred. Please report the issue to https://github.com/stationaryStation/stationBot/issues");
+  }
+  
 });
 client.on('message', message => {
   console.log(`${message.author.tag} at ${message.guild.name} said: ${message.content}\n`);
@@ -27,8 +34,7 @@ client.on("message", function (message) {
     // lists bot info
     if (command === "botinfo") {
         const timeTaken = Date.now() - message.createdTimestamp;
-        message.channel.send(`StationBot by stationaryStation\nVersion: ${verNumber}\nCurrent Branch: Stable(github)\nPing: ${timeTaken}ms\nHosted with: node.js, discord.js and repl.it\nPrefixes: ${prefix}`)
-    
+        message.channel.send(`StationBot by stationaryStation\nVersion: ${config.botVer}\nCurrent Branch: Stable(github)\nPing: ${timeTaken}ms\nHosted with: node.js, discord.js and repl.it\nPrefixes: ${prefix}`)
     }
     // Lists server info
     if (command === "serverinfo") {
@@ -97,7 +103,7 @@ client.on("message", function (message) {
             message.channel.send(`${prefix}help <command>\nUsage: Lists all current commands`);
         } else if (cmd === "ban") {
             message.channel.send(`${prefix}ban <UserID/User>\nUsage: Bans the user mentioned permanently\nRequirements: Be an admin`);
-        } else if (cmd === "pootisfy") {
+        } else if (cmd === "pootisfy" && config.stable == false) {
             message.channel.send(`${prefix}pootisfy\n Usage: Changes your nickname to pootis\nRequirements: You need to not have the manage nicknames permission and the change nickname permission`);
         } else if (cmd === "changeusernick") {
             message.channel.send(`${prefix}changeusernick <user> <nick>\nUsage: Changes the nickname of the user mentioned to whatever you like`);
@@ -107,13 +113,17 @@ client.on("message", function (message) {
             message.channel.send(`${prefix}boop <user>\n Usage: Boops the mentioned user`);
         } else if (cmd === "devmedia") {
             message.channel.send(`${prefix}devmedia\nUsage: Lists stationaryStation's social media`);
-        } else if (cmd === "") {
-            message.reply(`Commands:\ndevmedia\nboop\nchangenick\nchangeusernick\npootisfy\nban\nhelp\nrestart\nshutdown\nping\nkick`);
-        } 
+        } else if (cmd === "" && config.stable == false) {
+            message.channel.send(`Commands:\ndevmedia\nboop\nchangenick\nchangeusernick\npootisfy\nban\nhelp\nrestart\nshutdown\nping\nkick`);
+        } else if (cmd === "" && config.stable == true) {
+            message.channel.send(`Commands:\ndevmedia\nboop\nchangenick\nchangeusernick\nban\nhelp\nrestart\nshutdown\nping\nkick`);
+        } else if (cmd === "math") {
+            message.channel.send(`${prefix}math\nInfo: Calculate simple operations\nUsage: \`\`\`${prefix}math <op> <num1> <num2>\`\`\`\nArguments:\n Op: add, sub, div, multi, pow, root\n Num1: Insert a number\n Num2: Insert A number `)
+        }
        
     }
     if (command === "shutdown") {
-        if (message.author.id === dev) {
+        if (message.author.id === config.devID) {
             message.channel.send('Goodbye...').then(sentMessage => {
                 sentMessage.react(':white_check_mark:')
                 // eslint-disable-next-line no-undef
@@ -131,7 +141,7 @@ client.on("message", function (message) {
     if (command === "changeusernick") {
         const memberToEdit = message.mentions.members.first();
         const newNickname = message.content.replace(`${prefix}changeusernick`, '').split(' ').pop().trim();
-        memberToEdit.setNickname(newNickname);
+        memberToEdit.setNickname(newNickname);''
 
     }
     if (command === "changenick") {
@@ -139,16 +149,16 @@ client.on("message", function (message) {
         message.member.setNickname(newNick);
     }
     if (command === "devcommands") {
-        message.channel.send(`Current Dev Commands:\n shutdown: Shutdowns the bot. If node.js mode is enabled, the bot will shutdown.\n st!restart: Restarts the bot, if you are the owner.`);
+        message.channel.send(`Current Dev Commands:\n shutdown: Shutdowns the bot. If node.js mode is enabled, the bot will shutdown.\n st!restart: Restarts the bot, if you are the owner.\n st!checkmode: Lists the `);
     }
     if (command === "devmedia") {
         message.channel.send(`Dev's twitter:\n https://twitter.com/dumplingfurry/\n Dev's StackOverflow:\n https://stackoverflow.com/users/15887961/stationarystation?tab=profile\n Dev's Github: https://github.com/stationaryStation `);
     }
     if (command === "pootisfy") {
-      const nick = "pootis"
-      message.member.setNickname(nick);
+      const nick = 'pootis' // add nick as pootis
+      message.member.setNickname(nick); // change the message author's nick to pootis
     }
-    if (command === "resetnick") {
+    if (command === "resetnick"&& config.stable == false) { // Check if stable mode is false then run
         const nick = message.author.tag();
         message.member.setNickname(nick);
         
@@ -161,13 +171,96 @@ client.on("message", function (message) {
             message.reply(`I can't boop the void! >:(\n So please mention a user goddamit. `);
         }
     }
-    if (command === "issue") {
+    if (command === "issue"&& config.stable == false) { // check if stable mode is false then run
         message.channel.send('https://github.com/stationaryStation/stationBot/issues');
         message.channel.send('Post your issues here. Also, here you can look at the code :depressed:');
     }
     if (command === "github") {
         message.channel.send('https://github.com/stationaryStation/stationBot/');
     }
+    if (command === "checkmode") {
+        if (config.stable == true) { // if unstable mode is true then say on the channel that unstable mode is on
+            message.channel.send("Running on stable mode.");
+        } else if (config.stable == false){ // if stable mode is true then say on the channel that stable mode is on
+            message.channel.send("Running on unstable mode.");
+        } else {
+            message.channel.send("An unexpected error has occurred. Please report it with st!issue");
+        }
+    }
+    if (command === 'math'){
+        let op = args[0]
+        let num1 = args[1]
+        let num2 = args[2]
+
+        let parseNum1 = parseInt(num1)
+        let parseNum2 = parseInt(num2)
+
+        let ans
+
+        if (!op) {
+            message.channel.send("You need to specify the operation and the operands.");
+        } else {
+            if (op === "add"){
+                if(!args[1] || !args[2]) {
+                    message.channel.send("You need to specify the operands.");
+                } else {
+                    ans = parseNum1 + parseNum2
+                    message.channel.send(`Your answer is: ${ans}`)
+                }
+
+            } else if(op === "sub"){
+                if(!args[1] || !args[2]) {
+                    message.channel.send("You need to specify the operands.");
+                } else{
+                    ans = parseNum1 - parseNum2
+                    message.channel.send(`Your answer is: ${ans}`)
+                }
+
+            } else if(op === "multi"){
+                if(!args[1] || !args[2]) {
+                    message.channel.send("You need to specify the operands.");
+                } else {
+                    ans = parseNum1 * parseNum2
+                    message.channel.send(`Your answer is: ${ans}`)
+                }
+
+            } else if(op === "div"){
+                if(!args[1] || !args[2]) {
+                    message.channel.send("You need to specify the operands.");
+                } else {
+                    ans = parseNum1 / parseNum2
+                    message.channel.send(`Your answer is: ${ans}`)
+                }
+
+            }else if(op === "mod"){
+                if(!args[1] || !args[2]) {
+                    message.channel.send("You need to specify the operands.");
+                } else {
+                    ans = parseNum1 % parseNum2
+                    message.channel.send(`Your answer is: ${ans}`)
+                }
+
+            }else if(op === "pow"){
+                if(!args[1] || !args[2]) {
+                    message.channel.send("You need to specify the operands.");
+                } else {
+                    ans = Math.pow(parseNum1, parseNum2);
+                    message.channel.send(`Your answer is: ${ans}`)
+                }
+
+            }else if(op === "root"){
+                if(!args[1] || !args[2]) {
+                    message.channel.send("You need to specify the operands.");
+                }else {
+                    ans = Math.pow(parseNum1, 1/parseNum2);
+                    message.channel.send(`Your answer is: ${ans}`)
+                }
+
+            }
+        }
+
+    }
+    
 
 }); 
 
