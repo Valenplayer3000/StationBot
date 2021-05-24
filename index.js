@@ -108,7 +108,7 @@ client.on("message", function (message) {
             message.channel.send(`${prefix}devmedia\nUsage: Lists stationaryStation's social media`);
         } else if (cmd === "") {
             message.reply(`Commands:\ndevmedia\nboop\nchangenick\nchangeusernick\npootisfy\nban\nhelp\nrestart\nshutdown\nping\nkick`);
-        }
+        } 
        
     }
     if (command === "shutdown") {
